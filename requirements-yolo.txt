@@ -1,0 +1,3 @@
+# Optional (YOLO bonus). It weighs several hundred MB: use it only if you need it.
+-r requirements.txt
+ultralytics>=8.3
