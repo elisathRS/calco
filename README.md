@@ -11,7 +11,6 @@ on hectograph or thermal paper. Built with **Python, OpenCV and Streamlit**.
 | Thresholding | Method selector: global, global inverse, adaptive (mean and Gaussian) and Otsu | `cv2.threshold`, `cv2.adaptiveThreshold`, `THRESH_BINARY_INV`, `THRESH_OTSU` |
 | Masks and alpha channels | The ink becomes a mask, then a transparency channel | `cv2.bitwise_not`, `cv2.split`, `cv2.merge` |
 | Drawing and annotation | Registration marks, cm ruler, box with design size and a text label | `cv2.line`, `cv2.circle`, `cv2.rectangle`, `cv2.putText` |
-| Bonus: YOLO | Detects objects in the reference and can crop to them | `ultralytics` (optional) |
 
 It also uses `cv2.GaussianBlur`, `cv2.connectedComponentsWithStats` (speck removal),
 `cv2.dilate` / `cv2.erode` (line weight), `cv2.flip` (mirror) and `cv2.findNonZero` +
@@ -50,12 +49,6 @@ streamlit run app.py
 ### Alternative: Hugging Face Spaces
 
 Create a new Space with the **Streamlit** SDK, upload the same files and it publishes itself.
-
-### Turning on YOLO (optional)
-
-Replace `requirements.txt` with the contents of `requirements-yolo.txt`. The first run downloads the
-`yolov8n.pt` model. The free tier has little memory, so if the app runs out of resources, remove YOLO:
-everything else works without it.
 
 ## Structure
 

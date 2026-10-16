@@ -27,7 +27,7 @@ DEFAULTS = dict(
     contrast=1.6, brightness=0, method="Adaptive (Gaussian)", threshold=127, block=25, C=10,
     blur=1.5, clean=45, weight=0, shade=35,
     ink="Violet (classic stencil)", mirror=False, width_cm=15, marks=True, ruler=True, box=True,
-    label="", background="Paper", use_yolo=False, yolo_crop=True, yolo_conf=0.25,
+    label="", background="Paper",
 )
 for _key, _value in DEFAULTS.items():
     st.session_state.setdefault(_key, _value)
@@ -47,13 +47,6 @@ def apply_recipe(name):
 @st.cache_data(show_spinner=False)
 def cached_sample():
     return sl.sample_image()
-
-
-@st.cache_resource(show_spinner="Loading YOLO...")
-def load_yolo():
-    from ultralytics import YOLO  # optional: pip install ultralytics
-
-    return YOLO("yolov8n.pt")
 
 
 # ----------------------------------------------------------------------------
@@ -99,12 +92,6 @@ with st.sidebar:
     st.text_input("Label (accents are removed)", key="label", max_chars=40, placeholder="Client, body area, date...")
     st.radio("Preview on", sl.PREVIEW_BACKGROUNDS, key="background", horizontal=True)
 
-    with st.expander("Bonus: detect objects with YOLO"):
-        st.checkbox("Use YOLO", key="use_yolo",
-                    help="Detects people, animals and common objects (COCO classes). It does not recognise abstract tattoo designs.")
-        st.checkbox("Crop to detections", key="yolo_crop")
-        st.slider("Minimum confidence", 0.05, 0.9, step=0.05, key="yolo_conf")
-
 # ----------------------------------------------------------------------------
 # Input image
 # ----------------------------------------------------------------------------
@@ -117,23 +104,6 @@ if uploaded is not None:
 else:
     img = cached_sample()
     source_name = "sample mandala"
-
-original_view = img
-if st.session_state.use_yolo:
-    try:
-        detections = sl.detect_objects(img, load_yolo(), st.session_state.yolo_conf)
-        if detections:
-            original_view = sl.draw_detections(img, detections)
-            if st.session_state.yolo_crop:
-                x1, y1, x2, y2 = sl.union_box(detections, img.shape)
-                img = img[y1:y2, x1:x2]
-            st.sidebar.success(f"YOLO found {len(detections)} object(s).")
-        else:
-            st.sidebar.info("YOLO found no known objects in this image.")
-    except ImportError:
-        st.sidebar.warning("To use YOLO install the optional package: pip install ultralytics")
-    except Exception as e:  # noqa: BLE001
-        st.sidebar.warning(f"YOLO could not run: {e}")
 
 # ----------------------------------------------------------------------------
 # Processing
@@ -170,7 +140,7 @@ for col, name in zip(recipe_cols, RECIPES):
 left, right = st.columns(2)
 with left:
     st.subheader("Reference")
-    st.image(cv2.cvtColor(original_view, cv2.COLOR_BGR2RGB), use_container_width=True,
+    st.image(cv2.cvtColor(img, cv2.COLOR_BGR2RGB), use_container_width=True,
              caption=f"{source_name} · {img.shape[1]} × {img.shape[0]} px")
 sheet_w_cm = sheet.shape[1] / px_cm
 sheet_h_cm = sheet.shape[0] / px_cm
